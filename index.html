@@ -33,7 +33,19 @@
         <button type="button" class="py-2 px-3 inline-flex items-center gap-x-2 text-sm font-medium rounded-xl border border-transparent bg-lime-400 text-black hover:bg-lime-500 focus:outline-none focus:bg-lime-500 transition disabled:opacity-50 disabled:pointer-events-none">
           Sing up
         </button>
-  
+
+        <!-- Cart Icon -->
+        <div class="flex items-center space-x-2">
+          <!-- Cart Icon with Badge -->
+          <a href="#" class="relative flex items-center justify-center w-10 h-10 text-gray-700 hover:text-black rounded-full focus:outline-none dark:text-white dark:hover:text-neutral-300 pl-20">
+            <i class="fas fa-shopping-cart text-3xl"></i>
+            <!-- Badge to display count -->
+            <span id="itemCountBadge" class="absolute top-0 right-0 w-5 h-5 bg-red-500 text-white text-xs font-semibold rounded-full flex items-center justify-center">3</span>
+          </a>
+        </div>
+        
+        <!-- End Cart Icon -->
+        
         <div class="md:hidden">
           <button type="button" class="hs-collapse-toggle size-[38px] flex justify-center items-center text-sm font-semibold rounded-xl border border-gray-200 text-black hover:bg-gray-100 focus:outline-none focus:bg-gray-100 disabled:opacity-50 disabled:pointer-events-none dark:text-white dark:border-neutral-700 dark:hover:bg-neutral-700 dark:focus:bg-neutral-700" id="hs-navbar-hcail-collapse" aria-expanded="false" aria-controls="hs-navbar-hcail" aria-label="Toggle navigation" data-hs-collapse="#hs-navbar-hcail">
             <svg class="hs-collapse-open:hidden shrink-0 size-4" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="3" x2="21" y1="6" y2="6"/><line x1="3" x2="21" y1="12" y2="12"/><line x1="3" x2="21" y1="18" y2="18"/></svg>
@@ -41,6 +53,7 @@
           </button>
         </div>
       </div>
+      
       <!-- End Button Group -->
   
       <!-- Collapse -->
