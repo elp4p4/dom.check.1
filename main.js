@@ -1,79 +1,111 @@
-// Select all necessary elements
-const items = document.querySelectorAll('.shopping-item');
-const subtotalElement = document.getElementById('subtotalPrice'); // Select the subtotal element
-const cartBadge = document.getElementById('itemCountBadge'); // Cart icon badge element
-let totalPrice = 737.00; // Set initial total price
+class Item {
+    constructor(element, cart) {
+        this.element = element;
+        this.cart = cart;
+        this.price = parseFloat(element.querySelector('.item-price').textContent.replace(' TND', ''));
+        this.inputElement = element.querySelector('input[type="text"]');
+        this.increaseButton = element.querySelector('.increase');
+        this.decreaseButton = element.querySelector('.decrease');
+        this.trashIcon = element.querySelector('.trash-icon');
+        this.heartIcon = element.querySelector('.heart-icon');
+        
+        this.initEventListeners();
+    }
 
-// Function to update subtotal price display
-function updateSubtotal() {
-    subtotalElement.textContent = `${totalPrice.toFixed(2)} TND`;
-}
+    // Initialize event listeners for item buttons
+    initEventListeners() {
+        this.increaseButton.addEventListener('click', () => this.increaseQuantity());
+        this.decreaseButton.addEventListener('click', () => this.decreaseQuantity());
+        this.trashIcon.addEventListener('click', () => this.removeItem());
+        this.heartIcon.addEventListener('click', () => this.toggleFavorite());
+    }
 
-// Function to update cart item count display
-function updateCartCount() {
-    let totalItems = 0;
-    const remainingItems = document.querySelectorAll('.shopping-item'); // Update to get remaining items
-    remainingItems.forEach(item => {
-        const quantity = parseInt(item.querySelector('input[type="text"]').value);
-        totalItems += quantity;
-    });
-    cartBadge.textContent = totalItems;
-}
+    // Increase item quantity
+    increaseQuantity() {
+        let currentValue = parseInt(this.inputElement.value);
+        currentValue += 1;
+        this.inputElement.value = currentValue;
+        this.cart.updateTotalPrice(this.price);
+        this.cart.updateCartCount();
+    }
 
-// Set initial subtotal and cart count displays
-updateSubtotal();
-updateCartCount();
-
-// Add event listeners to each item
-items.forEach(item => {
-    const increaseButton = item.querySelector('.increase');
-    const decreaseButton = item.querySelector('.decrease');
-    const priceElement = item.querySelector('.item-price');
-    const inputElement = item.querySelector('input[type="text"]'); // Select input field
-    const price = parseFloat(priceElement.textContent.replace(' TND', ''));
-    const trashIcon = item.querySelector('.trash-icon');
-    const heartIcon = item.querySelector('.heart-icon');
-
-    // Event listener for increase button
-    increaseButton.addEventListener('click', () => {
-        let currentValue = parseInt(inputElement.value);
-        currentValue += 1; // Increment value
-        inputElement.value = currentValue; // Update input field
-
-        totalPrice += price; // Update total price
-        updateSubtotal(); // Update subtotal display
-        updateCartCount(); // Update cart count
-    });
-
-    // Event listener for decrease button
-    decreaseButton.addEventListener('click', () => {
-        let currentValue = parseInt(inputElement.value);
-        if (currentValue > 1) { // Ensure value doesn't go below 1
-            currentValue -= 1; // Decrement value
-            inputElement.value = currentValue; // Update input field
-    
-            totalPrice -= price; // Update total price
-            updateSubtotal(); // Update subtotal display
-            updateCartCount(); // Update cart count
-        } else {
-            totalPrice -= price; // Update total price
-            inputElement.value = 0; // Set input field to 0 before removal
-            item.remove(); // Remove the item from the DOM
-            updateSubtotal(); // Update subtotal display
-            updateCartCount(); // Update cart count after item removal
+    // Decrease item quantity
+    decreaseQuantity() {
+        let currentValue = parseInt(this.inputElement.value);
+        if (currentValue > 1) {
+            currentValue -= 1;
+            this.inputElement.value = currentValue;
+            this.cart.updateTotalPrice(-this.price); // Subtract price per unit
+        } else if (currentValue === 1) {
+            // Subtract the price of the last item and remove it
+            this.inputElement.value = 0; // Set input field to 0 before removal
+            this.cart.updateTotalPrice(-this.price); // Subtract the price once
+            this.removeItem(); // Remove the item from the DOM
         }
-    });
-    
-    // Event listener for trash icon
-    trashIcon.addEventListener('click', () => {
-        const quantity = parseInt(inputElement.value);
-        totalPrice -= price * quantity; // Subtract total price for the quantity
-        updateSubtotal(); // Update subtotal display
-        item.remove(); // Remove the item from the DOM
-        updateCartCount(); // Update cart count after item removal
-    });
+        this.cart.updateCartCount();
+    }
 
-    heartIcon.addEventListener('click', () => {
-        heartIcon.classList.toggle('text-pink-500'); // Toggle pink color
-    });
+
+
+    // Remove the item from the cart
+    removeItem() {
+        const quantity = parseInt(this.inputElement.value);
+        this.cart.updateTotalPrice(-this.price * quantity);
+        this.element.remove();
+        this.cart.updateCartCount();
+    }
+
+    // Toggle favorite (heart) icon color
+    toggleFavorite() {
+        this.heartIcon.classList.toggle('text-pink-500');
+    }
+}
+
+class ShoppingCart {
+    constructor() {
+        this.totalPrice = 737.00; // Initial total price
+        this.items = [];
+        this.subtotalElement = document.getElementById('subtotalPrice');
+        this.cartBadge = document.getElementById('itemCountBadge');
+        this.initializeCart();
+    }
+
+    // Initialize cart with all items
+    initializeCart() {
+        const itemElements = document.querySelectorAll('.shopping-item');
+        itemElements.forEach(itemElement => {
+            const item = new Item(itemElement, this);
+            this.items.push(item);
+        });
+        
+        this.updateSubtotal();
+        this.updateCartCount();
+    }
+
+    // Update the displayed total price
+    updateTotalPrice(amount) {
+        this.totalPrice += amount;
+        this.updateSubtotal();
+    }
+
+    // Display the subtotal price
+    updateSubtotal() {
+        this.subtotalElement.textContent = `${this.totalPrice.toFixed(2)} TND`;
+    }
+
+    // Update and display the cart item count
+    updateCartCount() {
+        let totalItems = 0;
+        this.items = this.items.filter(item => document.body.contains(item.element)); // Filter out removed items
+        this.items.forEach(item => {
+            const quantity = parseInt(item.inputElement.value);
+            totalItems += quantity;
+        });
+        this.cartBadge.textContent = totalItems;
+    }
+}
+
+// Initialize the shopping cart
+document.addEventListener('DOMContentLoaded', () => {
+    const shoppingCart = new ShoppingCart();
 });
